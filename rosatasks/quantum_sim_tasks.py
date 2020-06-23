@@ -18,7 +18,7 @@ def simulate_code(id, code, shots):
         res = job.result()
         counts = res.get_counts(c)
         res = {
-            key: (count/SHOTS)*100
+            key: (count/shots)*100
             for key, count in counts.items()
         }
         schema = str(c.draw())
