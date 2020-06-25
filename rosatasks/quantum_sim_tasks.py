@@ -29,8 +29,8 @@ def simulate_code(id, code, shots):
             for key, count in counts.items()
         }
         schema = str(c.draw())
-        return (id, None, res, schema)
+        return (id, None, res, schema, second_counter)
 
     except Exception as e:
         err = str(e).replace('\\n', '\n').replace('\"', '\n').replace('\'', '')
-        return (id, err, None, None)
+        return (id, err, None, None, second_counter)
