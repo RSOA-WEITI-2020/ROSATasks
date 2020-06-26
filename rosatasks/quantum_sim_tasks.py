@@ -25,9 +25,10 @@ def simulate_code(id, code, shots):
         while not job.in_final_state():
             elapsed_time = time.time() - start_time
             current_task.update_state(state='PROGRESS', meta={
-                                      'seconds': second_counter})
+                                      'seconds': second_counter, 'time': elapsed_time})
             time.sleep(1)
 
+        elapsed_time = time.time() - start_time
         res = job.result()
 
         counts = res.get_counts(c)
