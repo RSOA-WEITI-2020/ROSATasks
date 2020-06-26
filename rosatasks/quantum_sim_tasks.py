@@ -7,30 +7,37 @@ from qiskit import (
     execute,
     Aer,
 )
+from qiskit.providers import JobStatus
 from celery import (shared_task, current_task)
 
 
 @shared_task
 def simulate_code(id, code, shots):
     second_counter = 0
+    elapsed_time = 0
     try:
         sim = Aer.get_backend('qasm_simulator')
         c = QuantumCircuit.from_qasm_str(code)
+
         job = execute(c, sim, shots=shots)
+
+        start_time = time.time()
         while not job.in_final_state():
-            time.sleep(1)
-            second_counter += 1
+            elapsed_time = time.time() - start_time
             current_task.update_state(state='PROGRESS', meta={
                                       'seconds': second_counter})
+            time.sleep(1)
+
         res = job.result()
+
         counts = res.get_counts(c)
         res = {
             key: (count/shots)*100
             for key, count in counts.items()
         }
         schema = str(c.draw())
-        return (id, None, res, schema, second_counter)
+        return (id, None, res, schema, elapsed_time, second_counter)
 
     except Exception as e:
         err = str(e).replace('\\n', '\n').replace('\"', '\n').replace('\'', '')
-        return (id, err, None, None, second_counter)
+        return (id, err, None, None, elapsed_time, second_counter)
